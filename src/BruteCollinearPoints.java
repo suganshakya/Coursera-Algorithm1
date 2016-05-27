@@ -5,7 +5,6 @@ import java.util.Arrays;
  * Created by sugan on 27/05/16.
  */
 public class BruteCollinearPoints {
-    private int numberOfSegment;
     private LineSegment[] lineSegments;
 
     public BruteCollinearPoints(Point[] points)    // finds all line segments containing 4 points
@@ -16,44 +15,45 @@ public class BruteCollinearPoints {
         if (Arrays.asList(points).contains(null)) {
             throw new NullPointerException();
         }
-        for(int i= 0; i< points.length-1; ++i){
-            for(int j = i+1; j< points.length; ++j){
-                if(points[i] == points[j]){
+        for (int i = 0; i < points.length - 1; ++i) {
+            for (int j = i + 1; j < points.length; ++j) {
+                if (points[i].compareTo(points[j]) == 0) {
                     throw new IllegalArgumentException();
                 }
             }
         }
-        ArrayList<LineSegment> lineSegmentList = new ArrayList<LineSegment>();
-        Arrays.sort(points);
-        for(int i=0; i< points.length-3; i++){
-            for(int j=i+1; j< points.length-2; j++){
-                for(int k= j+1; k< points.length-1; k++){
-                    for (int l= k+1; l< points.length; l++){
-                        if(doesLieOnSameLine(points[i], points[j], points[k], points[l])){
-                            lineSegmentList.add(new LineSegment(points[i], points[l]));
+        ArrayList<LineSegment> lineSegmentList = new ArrayList<>();
+        Point[] copyPoints = Arrays.copyOf(points, points.length);
+        Arrays.sort(copyPoints);
+        for (int i = 0; i < copyPoints.length - 3; i++) {
+            for (int j = i + 1; j < copyPoints.length - 2; j++) {
+                for (int k = j + 1; k < copyPoints.length - 1; k++) {
+                    for (int l = k + 1; l < copyPoints.length; l++) {
+                        if (doesLieOnSameLine(copyPoints[i], copyPoints[j], copyPoints[k], copyPoints[l])) {
+                            lineSegmentList.add(new LineSegment(copyPoints[i], copyPoints[l]));
                         }
                     }
                 }
             }
         }
-        lineSegments = (LineSegment[]) lineSegmentList.toArray();
+        lineSegments = lineSegmentList.toArray(new LineSegment[lineSegmentList.size()]);
     }
 
 
     private boolean doesLieOnSameLine(Point point0, Point point1, Point point2, Point point3) {
-        if(point0.slopeTo(point1) == point0.slopeTo(point2) && point0.slopeTo(point1) == point0.slopeTo(point3) )
+        if (point0.slopeTo(point1) == point0.slopeTo(point2) && point0.slopeTo(point1) == point0.slopeTo(point3))
             return true;
         return false;
     }
 
     public int numberOfSegments()        // the number of line segments
     {
-        return numberOfSegment;
+        return lineSegments.length;
     }
 
     public LineSegment[] segments()                // the line segments
     {
-        return lineSegments;
+        return Arrays.copyOf(lineSegments, lineSegments.length);
     }
 
 }

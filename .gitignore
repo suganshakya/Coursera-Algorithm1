@@ -3,4 +3,6 @@
 *.zip
 .idea
 *.iml
+*.jar
+command_list.txt
 
