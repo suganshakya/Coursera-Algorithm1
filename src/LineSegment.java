@@ -51,4 +51,22 @@ public class LineSegment {
     public int hashCode() {
         throw new UnsupportedOperationException();
     }
+    
+        @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof LineSegment)) {
+            return false;
+        }
+        LineSegment ls = (LineSegment) obj;
+        if ((this.p == ls.p && this.q == ls.q) || (this.p == ls.q && this.q == ls.p)) {
+            return true;
+        }
+        return false;
+    }
 }
