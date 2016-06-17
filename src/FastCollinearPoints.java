@@ -1,98 +1,122 @@
-/**
- * Created by sugan on 6/11/16.
- */
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
- * A fst solution of finding colinear points in a set of points.
- *
- * @author ISchwarz
+ * Created by sugan on 27/05/16.
  */
-public class FastCollinearPoints1 {
+public class FastCollinearPoints {
+    private List<LineSegment> lineSegmentList;
+    private HashMap<Double, List<Point>> map;
 
-    private HashMap<Double, List<Point>> foundSegments = new HashMap<>();
-    private List<LineSegment> segments = new ArrayList<>();
+    public FastCollinearPoints(Point[] points)     // finds all gitline segmentsMap containing 4 or more points
+    {
+        checkValidity(points);
+        Point[] copyPoints = Arrays.copyOf(points, points.length);
+        lineSegmentList = new ArrayList<>();
+        map = new HashMap<>();
 
+        for (Point pointP : points) {
+            Arrays.sort(copyPoints, pointP.slopeOrder());
+            double previousSlope = Double.NEGATIVE_INFINITY;    // slope to own
+            List<Point> temp = new ArrayList<>();
+            boolean isOnLine = false;
+            int currentNumberOfPoints = 1;
+            for (int q = 1; q < points.length; q++) {
+                double slope = pointP.slopeTo(copyPoints[q]);
 
-    public FastCollinearPoints1(Point[] points) {
-//        checkDuplicatedEntries(points);
-        Point[] pointsCopy = Arrays.copyOf(points, points.length);
-//        Arrays.sort(pointsCopy);
-
-        for (Point startPoint : points) {
-            Arrays.sort(pointsCopy, startPoint.slopeOrder());
-
-            List<Point> slopePoints = new ArrayList<>();
-            double slope = 0;
-            double previousSlope = Double.NEGATIVE_INFINITY;
-
-            for (int i = 1; i < pointsCopy.length; i++) {
-                slope = startPoint.slopeTo(pointsCopy[i]);
                 if (slope == previousSlope) {
-                    slopePoints.add(pointsCopy[i]);
-                } else {
-                    if (slopePoints.size() >= 3) {
-                        slopePoints.add(startPoint);
-                        addSegmentIfNew(slopePoints, previousSlope);
+                    if (isOnLine == false) {  // first point whose slope match
+                        temp.add(copyPoints[q - 1]);
                     }
-                    slopePoints.clear();
-                    slopePoints.add(pointsCopy[i]);
+                    temp.add(copyPoints[q]);
+                    isOnLine = true;
+                    currentNumberOfPoints++;
+                } else {
+                    if (isOnLine && currentNumberOfPoints >= 3) {
+                        temp.add(pointP);
+                        addToMap(previousSlope, pointP, new ArrayList<Point>(temp));
+                        isOnLine = false;
+                    } else {
+                        temp.clear();
+                        isOnLine = false;
+                    }
+                    currentNumberOfPoints = 1;
+                    previousSlope = slope;
+//                    onLine = false;
                 }
-                previousSlope = slope;
-            }
-
-            if (slopePoints.size() >= 3) {
-                slopePoints.add(startPoint);
-                addSegmentIfNew(slopePoints, slope);
+                if (q == points.length - 1 && currentNumberOfPoints >= 3) {
+                    temp.add(pointP);
+                    addToMap(slope, pointP, new ArrayList<Point>(temp));
+                    isOnLine = false;
+                }
             }
         }
     }
 
-    private void addSegmentIfNew(List<Point> slopePoints, double slope) {
-        List<Point> endPoints = foundSegments.get(slope);
-        Collections.sort(slopePoints);
-
-        Point startPoint = slopePoints.get(0);
-        Point endPoint = slopePoints.get(slopePoints.size() - 1);
-
-        if (endPoints == null) {
-            endPoints = new ArrayList<>();
-            endPoints.add(endPoint);
-            foundSegments.put(slope, endPoints);
-            segments.add(new LineSegment(startPoint, endPoint));
-        } else {
-            for (Point currentEndPoint : endPoints) {
-                if (currentEndPoint.compareTo(endPoint) == 0) {
-                    return;
-                }
-            }
-            endPoints.add(endPoint);
-            segments.add(new LineSegment(startPoint, endPoint));
-        }
+    public int numberOfSegments()        // the number of line segmentsMap
+    {
+        return lineSegmentList.size();
     }
 
+    public LineSegment[] segments()                // the line segmentsMap
+    {
+        return lineSegmentList.toArray(new LineSegment[lineSegmentList.size()]);
+    }
 
-    private void checkDuplicatedEntries(Point[] points) {
+    private void checkValidity(Point[] points) {
+        if (points == null) {
+            throw new NullPointerException();
+        }
+        if (Arrays.asList(points).contains(null)) {
+            throw new NullPointerException();
+        }
         for (int i = 0; i < points.length - 1; i++) {
             for (int j = i + 1; j < points.length; j++) {
                 if (points[i].compareTo(points[j]) == 0) {
-                    throw new IllegalArgumentException("Duplicated entries in given points.");
+                    throw new IllegalArgumentException();
                 }
             }
         }
     }
 
-    public int numberOfSegments() {
-        return segments.size();
+    private void addToMap(Double slope, Point refPoint, List<Point> pList) {
+        if (map.size() == 0) {  // empty no need to check duplicate
+            addToLineSegment(slope, pList);
+            return;
+        }
+        if (!map.containsKey(slope)) {   // no line with given slope, no need to check duplicate
+            addToLineSegment(slope, pList);
+            return;
+        }
+        // why is existing Points empty for repeated line
+        List<Point> existingPoints = (List<Point>) map.get(slope);
+        if (existingPoints.contains(refPoint)) {
+            return;
+        }
+        addToLineSegment(slope, pList);
     }
 
-    public LineSegment[] segments() {
-        return segments.toArray(new LineSegment[segments.size()]);
+    private void addToLineSegment(Double slope, List<Point> pList) {
+        map.put(slope, pList);
+        // add new line to line segment
+        Point start, end;
+        start = pList.get(0);
+        end = start;
+        for (Point p : pList.subList(1, pList.size())) {
+            if (p.compareTo(start) < 0) {
+                start = p;
+            }
+            if (p.compareTo(end) > 0) {
+                end = p;
+            }
+        }
+        lineSegmentList.add(new LineSegment(start, end));
     }
 
     public static void main(String[] args) {
@@ -117,7 +141,7 @@ public class FastCollinearPoints1 {
         StdDraw.show();
 
         // print and draw the line segments
-        FastCollinearPoints1 collinear = new FastCollinearPoints1(points);
+        FastCollinearPoints collinear = new FastCollinearPoints(points);
         for (LineSegment segment : collinear.segments()) {
             StdOut.println(segment);
             segment.draw();
