@@ -6,7 +6,9 @@ Working excellent - 100%
 
 Week2: Queues
 Need to improvement on RandomizedQueue
-Success - 85%
+Success - 100%
 
 Week3: Points
-Working on
+Point - 100%
+BruteForce - 100%
+FastCollinear - working for all test case, but showing errors which are not there.
