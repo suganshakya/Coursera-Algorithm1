@@ -7,10 +7,31 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by sugan on 27/05/16.
+ * Created by Sugan.
  */
 public class FastCollinearPoints {
-    private List<LineSegment> lineSegmentList;
+    private List<MyLineSegment> lineSegmentList;
+    private LineSegment[] lineSegments;
+
+    private class MyLineSegment {
+        private Point p;
+        private Point q;
+
+        public MyLineSegment(Point p, Point q) {
+            if (p == null || q == null) {
+                throw new NullPointerException("argument is null");
+            }
+            this.p = p;
+            this.q = q;
+        }
+
+        public boolean isEqual(MyLineSegment ls) {
+            if (ls == null) {
+                return false;
+            }
+            return ((this.p == ls.p && this.q == ls.q) || (this.p == ls.q && this.q == ls.p));
+        }
+    }
 
     public FastCollinearPoints(Point[] points)     // finds all gitline segmentsMap containing 4 or more points
     {
@@ -66,12 +87,13 @@ public class FastCollinearPoints {
                 end = p;
             }
         }
-        LineSegment ls = new LineSegment(start, end);
-        for (LineSegment lineSegment : lineSegmentList) {
-            if (lineSegment.equals(ls)) {
+        MyLineSegment mls = new MyLineSegment(start, end);
+        for (MyLineSegment lineSegment : lineSegmentList) {
+            if (lineSegment.isEqual(mls)) {
                 return;     // already added
             }
         }
+        MyLineSegment ls = new MyLineSegment(start, end);
         lineSegmentList.add(ls);
     }
 
@@ -82,7 +104,13 @@ public class FastCollinearPoints {
 
     public LineSegment[] segments()                // the line segmentsMap
     {
-        return lineSegmentList.toArray(new LineSegment[lineSegmentList.size()]);
+        lineSegments = new LineSegment[lineSegmentList.size()];
+        int i = 0;
+        for (MyLineSegment mls : lineSegmentList) {
+            lineSegments[i++] = new LineSegment(mls.p, mls.q);
+        }
+        return Arrays.copyOf(lineSegments, lineSegments.length);
+//        return lineSegments;
     }
 
     private void checkValidity(Point[] points) {

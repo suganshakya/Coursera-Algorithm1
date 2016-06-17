@@ -7,7 +7,6 @@ import java.util.Comparator;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
-    //    public final Comparator<Point> BY_SLOPE = new SlopeOrder();
     private final int x;
     private final int y;
 
@@ -24,9 +23,6 @@ public class Point implements Comparable<Point> {
 
     public void drawTo(Point that)                   // draws the line segment from this point to that point
     {
-        if (that == null) {
-            throw new NullPointerException();
-        }
         StdDraw.line(this.x, this.y, that.x, that.y);
     }
 
@@ -60,7 +56,7 @@ public class Point implements Comparable<Point> {
         if (that.x == this.x) {     // VERTICAL LINE
             return Double.POSITIVE_INFINITY;
         }
-        return (double) (that.y - this.y) / (that.x - this.x);
+        return (that.y - this.y) / (double) (that.x - this.x);
     }
 
     public Comparator<Point> slopeOrder()              // compare two points by slopes they make with this point
@@ -70,19 +66,17 @@ public class Point implements Comparable<Point> {
 
     private class SlopeOrder implements Comparator<Point> {
         public int compare(Point a, Point b) {
-            if(a==null || b==null){
+            if (a == null || b == null) {
                 throw new NullPointerException();
             }
-            double diffSlope = Point.this.slopeTo(a) - Point.this.slopeTo(b);
-            if (diffSlope < 0.0) {
+            if (slopeTo(a) < slopeTo(b)) {
                 return -1;
             }
-            if (diffSlope > 0.0) {
+            if (slopeTo(a) > slopeTo(b)) {
                 return 1;
             }
             return 0;
         }
-
     }
 
     public static void main(String[] args) {

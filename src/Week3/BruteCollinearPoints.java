@@ -1,3 +1,5 @@
+import edu.princeton.cs.algs4.Quick;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -24,7 +26,7 @@ public class BruteCollinearPoints {
         }
         ArrayList<LineSegment> lineSegmentList = new ArrayList<>();
         Point[] copyPoints = Arrays.copyOf(points, points.length);
-        Arrays.sort(copyPoints);
+        Quick.sort(copyPoints);
         for (int i = 0; i < copyPoints.length - 3; i++) {
             for (int j = i + 1; j < copyPoints.length - 2; j++) {
                 for (int k = j + 1; k < copyPoints.length - 1; k++) {
