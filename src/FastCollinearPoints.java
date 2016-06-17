@@ -2,7 +2,9 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by sugan on 27/05/16.
@@ -18,14 +20,15 @@ public class FastCollinearPoints {
 
         for (Point pointP : points) {
             Arrays.sort(copyPoints, pointP.slopeOrder());
-            Double previousSlope = Double.NEGATIVE_INFINITY;    // slope to own
+            double previousSlope = Double.NEGATIVE_INFINITY;    // slope to own
             List<Point> pointList = new ArrayList<>();
             boolean isOnLine = false;
             int currentNumberOfPoints = 1;
-            for (int q = 1; q < points.length; q++) {
-                Double slope = pointP.slopeTo(copyPoints[q]);
 
-                if (slope.equals(previousSlope)) {
+            for (int q = 1; q < points.length; q++) {
+                double slope = pointP.slopeTo(copyPoints[q]);
+
+                if (slope == previousSlope) {
                     if (!isOnLine) {  // first point whose slope match
                         pointList.add(copyPoints[q - 1]);
                     }
@@ -66,7 +69,7 @@ public class FastCollinearPoints {
         LineSegment ls = new LineSegment(start, end);
         for (LineSegment lineSegment : lineSegmentList) {
             if (lineSegment.equals(ls)) {
-                return;
+                return;     // already added
             }
         }
         lineSegmentList.add(ls);
